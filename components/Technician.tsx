@@ -38,7 +38,7 @@ export const Technician: React.FC<TechnicianProps> = ({
                       {v.driverName} <span className="text-slate-400 font-normal">({v.plate})</span>
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-200 bg-slate-700 px-2 py-0.5 rounded">
+                      <span className="text-sm text-white bg-green-700 px-2 py-0.5 rounded">
                         {v.serviceType}
                       </span>
                       {v.serviceType === ServiceType.CSV && (
@@ -61,10 +61,10 @@ export const Technician: React.FC<TechnicianProps> = ({
           )}
         </div>
 
-        {/* In Inspection List */}
+        {/* In Inspection List - RED THEME */}
         <div className="bg-[#002060] p-6 rounded-xl shadow-md border border-[#0057B8]">
           <div className="flex items-center gap-2 mb-6 border-b border-[#0057B8] pb-4">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
             <h2 className="text-xl font-bold text-white">Em Inspeção ({inInspection.length})</h2>
           </div>
 
@@ -73,18 +73,18 @@ export const Technician: React.FC<TechnicianProps> = ({
           ) : (
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {inInspection.map((v) => (
-                <div key={v.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#003300] rounded-lg border border-green-900 hover:border-green-700 transition-colors">
+                <div key={v.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#2a0a0a] rounded-lg border border-red-900 hover:border-red-700 transition-colors">
                    <div className="mb-3 sm:mb-0">
-                    <h3 className="font-bold text-lg text-green-100">
-                      {v.driverName} <span className="text-green-300 font-normal">({v.plate})</span>
+                    <h3 className="font-bold text-lg text-red-100">
+                      {v.driverName} <span className="text-red-300 font-normal">({v.plate})</span>
                     </h3>
-                    <span className="text-sm font-medium text-green-200 bg-green-900 px-2 py-0.5 rounded">
+                    <span className="text-sm font-medium text-red-100 bg-red-900 px-2 py-0.5 rounded">
                       {v.serviceType}
                     </span>
                   </div>
                   <button
                     onClick={() => onFinish(v.id)}
-                    className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors shadow-sm"
+                    className="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors shadow-sm"
                   >
                     <CheckCircle className="w-4 h-4" />
                     Finalizar
@@ -97,4 +97,4 @@ export const Technician: React.FC<TechnicianProps> = ({
       </div>
     </div>
   );
-};
+}
