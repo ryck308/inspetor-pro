@@ -1,0 +1,6 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+export const supabase = createClient(
+  "https://lcnurlvkfaqmmflagtgr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjbnVybHZrZmFxbW1mbGFndGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3OTU0OTUsImV4cCI6MjA4MDM3MTQ5NX0.-IjkP_wBooOJhY4iQjQ6AntAq6B-WQY2Iss4w8BtN7A"
+);

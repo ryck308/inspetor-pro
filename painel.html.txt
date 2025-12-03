@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Painel TV - InspetorPro</title>
+
+<script type="module">
+import { supabase } from "./supabase.js";
+
+async function atualizarPainel() {
+  const { data } = await supabase.from("painel").select("*").eq("id", 1).single();
+
+  if (!data || !data.nome) return;
+
+  document.getElementById("nome").innerHTML = data.nome;
+  document.getElementById("servico").innerHTML = data.servico;
+
+  if (data.servico === "CSV") {
+    document.getElementById("prioridade").style.display = "block";
+  } else {
+    document.getElementById("prioridade").style.display = "none";
+  }
+
+  falar(data.nome, data.servico);
+}
+
+function falar(nome, servico) {
+  const frase = servico === "DESCONTAMINACAO"
+    ? `${nome}, apresente seu veículo na área de descontaminação.`
+    : `${nome}, apresente seu veículo na área de inspeção para realizar ${servico}.`;
+
+  const utter = new SpeechSynthesisUtterance(frase);
+  utter.lang = "pt-BR";
+  utter.rate = 1.02;
+  speechSynthesis.speak(utter);
+}
+
+setInterval(atualizarPainel, 1500);
+</script>
+
+</head>
+<body style="font-size: 40px; text-align: center;">
+  
+  <div id="prioridade" style="display:none;color:red;font-size:60px;">
+    PRIORIDADE
+  </div>
+
+  <div id="nome"></div>
+  <div id="servico"></div>
+
+</body>
+</html>
