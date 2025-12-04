@@ -1,6 +1,7 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// public/supabase.js
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-export const supabase = createClient(
-  "https://lcnurlvkfaqmmflagtgr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjbnVybHZrZmFxbW1mbGFndGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3OTU0OTUsImV4cCI6MjA4MDM3MTQ5NX0.-IjkP_wBooOJhY4iQjQ6AntAq6B-WQY2Iss4w8BtN7A"
-);
+const SUPABASE_URL = "https://lcnurlvkfaqmmflagtgr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxjbnVybHZrZmFxbW1mbGFndGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3OTU0OTUsImV4cCI6MjA4MDM3MTQ5NX0.-IjkP_wBooOJhY4iQjQ6AntAq6B-WQY2Iss4w8BtN7A";
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

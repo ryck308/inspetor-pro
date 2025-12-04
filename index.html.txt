@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>InspetorPro — Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body{font-family:Arial;max-width:720px;margin:40px auto;padding:12px}
+    a{display:block;padding:12px;margin:8px 0;background:#0b5cff;color:#fff;text-decoration:none;border-radius:6px}
+    small{color:#666;display:block;margin-top:8px}
+  </style>
+</head>
+<body>
+  <h1>InspetorPro</h1>
+  <a href="/recepcao.html" target="_blank">Abrir Recepção (computador)</a>
+  <a href="/tecnico.html" target="_blank">Abrir Técnico (celular)</a>
+  <a href="/painel.html" target="_blank">Abrir Painel TV (monitor)</a>
+  <small>Abra Recepção no computador, Técnico no celular e Painel em um monitor para testar.</small>
+</body>
+</html>

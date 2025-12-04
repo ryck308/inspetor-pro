@@ -1,50 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Técnico - InspetorPro</title>
-
-  <script type="module">
-    import { supabase } from "./supabase.js";
-
-    async function carregarFila() {
-      const { data } = await supabase
-        .from("vehicles")
-        .select("*")
-        .eq("status", "aguardando")
-        .order("created_at", { ascending: true });
-
-      const lista = document.getElementById("lista");
-      lista.innerHTML = "";
-
-      data.forEach(v => {
-        const li = document.createElement("li");
-        li.innerHTML = `${v.nome} — ${v.servico} 
-          <button onclick="chamar(${v.id}, '${v.nome}', '${v.servico}')">Chamar</button>`;
-        lista.appendChild(li);
-      });
-    }
-
-    async function chamar(id, nome, servico) {
-      await supabase.from("vehicles").update({ status: "chamado" }).eq("id", id);
-
-      await supabase.from("painel").upsert({
-        id: 1,
-        nome,
-        servico,
-        tipo_chamada: "chamar",
-        updated_at: new Date()
-      });
-
-      alert("Chamado!");
-    }
-
-    setInterval(carregarFila, 1000);
-  </script>
+  <meta charset="utf-8"/><title>InspetorPro — Técnico</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body{font-family:Arial;padding:18px;max-width:720px;margin:auto}
+    .card{border:1px solid #ddd;padding:10px;margin-bottom:10px;border-radius:6px}
+    button{padding:8px 12px;margin-right:8px}
+  </style>
 </head>
-
 <body>
-  <h2>Técnico</h2>
-  <ul id="lista"></ul>
+  <h2>InspetorPro — Técnico</h2>
+  <div id="lista"></div>
+
+<script type="module">
+  import { supabase } from '/supabase.js';
+
+  const listaEl = document.getElementById('lista');
+
+  function render(list){
+    listaEl.innerHTML='';
+    list.filter(x=>x.status==='aguardando' || x.status==='em_andamento')
+        .sort((a,b)=> new Date(a.created_at) - new Date(b.created_at))
+        .forEach(v=>{
+      const div=document.createElement('div'); div.className='card';
+      div.innerHTML = `<strong>${v.nome}</strong> — ${v.servico} <br/><small>${v.placa||''}</small>
+        <div style="margin-top:8px">
+          <button onclick="chamar('${v.id}')">Chamar Veículo</button>
+          <button onclick="finalizar('${v.id}')">Finalizar Serviço</button>
+        </div>`;
+      listaEl.appendChild(div);
+    });
+  }
+
+  window.chamar = async (id) => {
+    await supabase.from('vehicles').update({ status:'em_andamento', hora_chamada: new Date().toISOString() }).eq('id', id);
+    const { data } = await supabase.from('vehicles').select('*').eq('id', id).single();
+    if(!data) return;
+    // read config table for assets (optional)
+    const { data:cfg } = await supabase.from('config').select('*');
+    const cfgMap = (cfg || []).reduce((acc,c)=>{ acc[c.key]=c.value; return acc; },{});
+    const image_asset = (data.servico === 'CSV') ? (cfgMap['painel_csv_asset_url'] || '/assets/csv.png') : (cfgMap['chamar_veiculo_asset_default'] || '/assets/chamar_default.png');
+
+    // set painel state
+    await supabase.from('panel_state').upsert({
+      id:1,
+      mostrar:'chamar_veiculo',
+      image_asset,
+      duracao_segundos:50,
+      prioridade: data.servico === 'CSV',
+      reiniciar_ciclo:true,
+      tipo_evento:'chamar',
+      nome_condutor: data.nome,
+      servico: data.servico,
+      updated_at: Math.floor(Date.now()/1000)
+    }, { onConflict: 'id' });
+
+    await supabase.from('events').insert([{ tipo:'chamar', vehicle_id:id, nome:data.nome, servico:data.servico }]);
+  };
+
+  window.finalizar = async (id) => {
+    await supabase.from('vehicles').update({ status:'finalizado', hora_finalizado: new Date().toISOString() }).eq('id', id);
+    const { data } = await supabase.from('vehicles').select('*').eq('id', id).single();
+    if(!data) return;
+    const { data:cfg } = await supabase.from('config').select('*');
+    const cfgMap = (cfg || []).reduce((acc,c)=>{ acc[c.key]=c.value; return acc; },{});
+    const image_asset = (data.servico === 'CSV') ? (cfgMap['painel_csv_asset_url'] || '/assets/csv.png') : (cfgMap['chamar_veiculo_asset_default'] || '/assets/chamar_default.png');
+    const mensagem = (['CIV','CSV','CIPP','LIT','LAUDOS'].includes(data.servico)) ?
+      `${data.nome}, retire seu veículo da área de inspeção.` :
+      `${data.nome}, retire seu veículo da área de descontaminação.`;
+
+    await supabase.from('panel_state').upsert({
+      id:1,
+      mostrar:'chamar_veiculo',
+      image_asset,
+      duracao_segundos:50,
+      prioridade: data.servico === 'CSV',
+      reiniciar_ciclo:true,
+      tipo_evento:'finalizar',
+      nome_condutor: data.nome,
+      servico: data.servico,
+      mensagem_voz: mensagem,
+      updated_at: Math.floor(Date.now()/1000)
+    }, { onConflict: 'id' });
+
+    await supabase.from('events').insert([{ tipo:'finalizar', vehicle_id:id, nome:data.nome, servico:data.servico }]);
+  };
+
+  // initial load & realtime listen
+  (async ()=>{
+    const { data } = await supabase.from('vehicles').select('*');
+    render(data || []);
+    supabase
+      .channel('public:vehicles')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, payload => {
+        (async ()=>{
+          const { data } = await supabase.from('vehicles').select('*');
+          render(data || []);
+        })();
+      })
+      .subscribe();
+  })();
+</script>
 </body>
 </html>
